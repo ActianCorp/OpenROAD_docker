@@ -1,0 +1,14 @@
+version: '2'
+
+services:
+  nagios:
+    image: actian-orserver:latest
+    container_name: actian_orserver_demo
+    restart: always
+    volumes:
+        - ./data/deploy:/deploy
+        - ./data/log:/logs
+    ports:
+        - "8080:8080"
+        - "50052:50052"
+
