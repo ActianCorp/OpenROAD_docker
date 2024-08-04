@@ -87,7 +87,7 @@ echo "Starting Tomcat 9 ($CATALINA_HOME/bin/catalina.sh start)."
 su - $owner -c "$CATALINA_HOME/bin/catalina.sh start"
 
 echo "Starting the ORSPO Server."
-su - $owner -c "$II_SYSTEM/ingres/bin/orspogsvrstart.bash"
+su - $owner -c "$II_SYSTEM/ingres/bin/orspogsvrstart"
 echo "Started."
 
 while [ -f $runfile ]
@@ -102,6 +102,6 @@ runuser $owner -c "ingstop -mgmtsvr"
 echo "Tomcat stop"
 runuser $owner -c "$CATALINA_HOME/bin/catalina.sh stop"
 echo "orspogsvrstop"
-runuser $owner -c "$II_SYSTEM/ingres/bin/orspogsvrstop.bash"
+runuser $owner -c "$II_SYSTEM/ingres/bin/orspogsvrstop"
 echo "Done"
 

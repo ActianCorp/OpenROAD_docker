@@ -40,26 +40,28 @@ RUN alternatives --install /usr/bin/python python /usr/bin/python3 100
 RUN dnf -y groupinstall 'Development Tools'
 RUN dnf -y install gcc libX11-devel freetype-devel zlib-devel libxcb-devel libxslt-devel libgcrypt-devel libxml2-devel gnutls-devel libpng-devel libjpeg-turbo-devel libtiff-devel dbus-devel fontconfig-devel
 
-# Install gRPCurl
-RUN wget https://github.com/fullstorydev/grpcurl/releases/download/v1.9.0/grpcurl_1.9.0_linux_x86_64.tar.gz
-RUN tar -xvzf grpcurl_1.9.0_linux_x86_64.tar.gz
-RUN chmod +x grpcurl
-RUN mv grpcurl /usr/local/bin/grpcurl
-
 # This Dockerfile will work with any community linux version that follows this naming convention
 ENV VERSION=12.0                      \
 INGRES_ARCHIVE=actianx-*-x86_64*      \
 TOMCAT_ARCHIVE=apache-tomcat*.tar.gz  \
-OPENROAD_ARCHIVE=or12_0_com           \
+OPENROAD_ARCHIVE=openroad-*-a64_lnx*  \
 OPENROAD_APP=orserver-add-*.zip       \
 II_SYSTEM=/IngresOR                   \
+II_INSTALLATION=OR                    \
 TIMEZONE=America/Los_Angeles          \
 LicDir=/License                       \
 II_RESPONSE_FILE=/response_file.rsp   \
-CATALINA_HOME=/usr/local/tomcat       
+CATALINA_HOME=/usr/local/tomcat       \
+GRPCURL_VERSION=1.9.1
+
+# Install gRPCurl
+RUN wget https://github.com/fullstorydev/grpcurl/releases/download/v${GRPCURL_VERSION}/grpcurl_${GRPCURL_VERSION}_linux_x86_64.tar.gz
+RUN tar -xvzf grpcurl_${GRPCURL_VERSION}_linux_x86_64.tar.gz
+RUN chmod +x grpcurl
+RUN mv grpcurl /usr/local/bin/grpcurl
 
 # Pull in Ingres saveset
-ADD savesets/${INGRES_ARCHIVE}.tgz .
+ADD savesets/${INGRES_ARCHIVE}.tgz /tmp/.
 COPY savesets/${OPENROAD_ARCHIVE}.tar.gz .
 
 # Setup for OpenROAD App Deployment
@@ -77,12 +79,15 @@ ADD savesets/${TOMCAT_ARCHIVE} /usr/local
 RUN cd /usr/local && mv apache-tomcat* tomcat && chown -R actian:actian ${CATALINA_HOME}
 
 # Install Ingres
-RUN rpm -qp rpm/ingres-${VERSION}.*.rpm --requires
-RUN cd $INGRES_ARCHIVE && \
-    rpm -ivh --prefix=${II_SYSTEM} rpm/ingres-${VERSION}.*.rpm rpm/ingres-net-${VERSION}*.rpm && \
-    ${II_SYSTEM}/ingres/utility/iisystemd -a configure -d "${II_SYSTEM}" -i OR -s rdbms             && \
-    . ${II_SYSTEM}/ingres/.ingORsh   && \
-    cd -
+RUN mkdir -p ${II_SYSTEM}/ingres
+RUN chown -R actian:actian ${II_SYSTEM}/ingres
+COPY ingOR.sh $II_SYSTEM/ingres/.ingORsh
+RUN dos2unix $II_SYSTEM/ingres/.ingORsh
+
+COPY ingbld_install.sh $II_SYSTEM/ingres/ingbld_install.sh
+RUN dos2unix $II_SYSTEM/ingres/ingbld_install.sh
+
+RUN cd ${II_SYSTEM}/ingres && su actian -c ./ingbld_install.sh
 
 RUN ln -snf /usr/share/zoneinfo/$TIMEZONE /etc/localtime && echo $TIMEZONE > /etc/timezone
 
@@ -93,6 +98,8 @@ RUN cp $II_SYSTEM/ingres/.ingORsh /etc/profile.d/ingresOR.sh
 RUN source /etc/profile.d/ingresOR.sh && \
     tar xzf ${OPENROAD_ARCHIVE}.tar.gz orinstall.sh cilicchk lichostinfo && \
     mv cilicchk lichostinfo $II_SYSTEM/ingres/utility && \
+    chown actian:actian $II_SYSTEM/ingres/utility/cilicchk && \
+    chown actian:actian $II_SYSTEM/ingres/utility/lichostinfo && \
     chmod u+x ./orinstall.sh && \
     su actian -c "sh orinstall.sh -t orrun -licdir ${LicDir} -f ${OPENROAD_ARCHIVE}.tar.gz -l accept -r O" && \
     sed -i -e "s,`hostname`,localhost," $II_SYSTEM/ingres/files/orserver.json
@@ -112,8 +119,7 @@ RUN chmod 755 $II_SYSTEM/ingres/utility/or_dockerctl
 RUN ln -s $II_SYSTEM/ingres/utility/or_dockerctl /usr/local/bin/or_dockerctl
 
 # Deploy OpenROAD gRPC servlet
-RUN cp -p $II_SYSTEM/ingres/orgrpcjava/openroadg.jar $CATALINA_HOME/webapps
-RUN cd $CATALINA_HOME/webapps && jar -xvf $CATALINA_HOME/webapps/openroadg.jar
+RUN cp -p $II_SYSTEM/ingres/orgrpcjava/openroadg.war $CATALINA_HOME/webapps
 
 # Allow external connections
 EXPOSE 50052 8080
