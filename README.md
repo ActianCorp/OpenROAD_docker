@@ -11,7 +11,7 @@ Before running the script
 - Download the latest version of non-RPM based ActianX 12.0 for Linux 64-bit and place it in the `saveset` directory (e.g. `OpenROAD_docker`). See `INGRES_ARCHIVE` in Dockerfile.
 - Download the latest version of OpenROAD 12.0 for Linux 64-bit and place it in the `saveset` directory (e.g. `OpenROAD_docker`). See `OPENROAD_ARCHIVE` in Dockerfile.
 - Download the latest version of tar.gz Apache Tomcat 9 package from the Apache Tomcat 9 page and place it in the `saveset` directory (e.g. `OpenROAD_docker`). See `TOMCAT_ARCHIVE` in Dockerfile.
-- Place OpenROAD `licence.xml` inside licdata directory in the base directory (eg. `OpenROAD_docker/licdata`)
+- Place OpenROAD `licence.xml` inside licdata directory in the base directory (e.g. `OpenROAD_docker/licdata`), see License Activation section
 
 
 Once all the above steps are completed, run following commands 
@@ -69,3 +69,15 @@ Specific
     docker rm actian_orserver_demo
 
     docker image rm actian_orserver
+
+## License Activation
+
+License key activation is a self-service process.
+The Actian license activation FAQ is located at https://communities.actian.com/s/article/FAQs-and-Training-for-Licensing-Key-Manager-and-License-Key-Generator
+
+For questions and problems with license activation
+open a support case at https://communities.actian.com/s/
+
+- The recommendation for Cloud deployments is to use a cloud license
+- For on-premise deployment, domain based licenses are easier to deploy
+- Machine based licenses can be used but would not recommended due to containers changing
