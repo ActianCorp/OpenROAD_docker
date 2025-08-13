@@ -6,9 +6,9 @@ This article shows how to setup a Docker image with the Actian OpenROAD Server o
 
 Before running the script 
 
-- Git clone will extract the files and place them in a directory (e.g. `OpenROAD_docker`) which will be the base directory for the setup. `git clone https://github.com/ActianCorp/OpenROAD_docker.git`
+- `git clone` will extract the files and place them in a directory (e.g. `OpenROAD_docker`) which will be the base directory for the setup. `git clone https://github.com/ActianCorp/OpenROAD_docker.git`
 - Check `saveset` directory for known working versions
-- Download the latest version of Non-RPM based ActianX 12.0 for Linux 64-bit and place it in the `saveset` directory (e.g. `OpenROAD_docker`). See `INGRES_ARCHIVE` in Dockerfile.
+- Download the latest version of non-RPM based ActianX 12.0 for Linux 64-bit and place it in the `saveset` directory (e.g. `OpenROAD_docker`). See `INGRES_ARCHIVE` in Dockerfile.
 - Download the latest version of OpenROAD 12.0 for Linux 64-bit and place it in the `saveset` directory (e.g. `OpenROAD_docker`). See `OPENROAD_ARCHIVE` in Dockerfile.
 - Download the latest version of tar.gz Apache Tomcat 9 package from the Apache Tomcat 9 page and place it in the `saveset` directory (e.g. `OpenROAD_docker`). See `TOMCAT_ARCHIVE` in Dockerfile.
 - Place OpenROAD `licence.xml` inside licdata directory in the base directory (eg. `OpenROAD_docker/licdata`)
